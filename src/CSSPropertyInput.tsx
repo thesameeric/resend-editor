@@ -67,6 +67,11 @@ export function CSSPropertyInput({ label, value, onChange, allowIndividual = fal
         parseIndividualValues(value)
     )
 
+    const handleExpand = React.useCallback(() => {
+        setIsExpanded(true)
+        setIndividualValues(parseIndividualValues(value))
+    }, [value])
+
     React.useEffect(() => {
         const parsed = parseValue(value)
         setUnit(parsed.unit)
@@ -178,10 +183,7 @@ export function CSSPropertyInput({ label, value, onChange, allowIndividual = fal
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => {
-                                        setIsExpanded(true)
-                                        setIndividualValues(parseIndividualValues(value))
-                                    }}
+                                    onClick={handleExpand}
                                     className="h-6 px-2 cursor-pointer"
                                 >
                                     <UnfoldHorizontalIcon className="size-3" />

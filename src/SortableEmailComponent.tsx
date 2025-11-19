@@ -155,7 +155,7 @@ const TextRenderer = React.memo(({ component, isEditing, contentRef, handleClick
                 outline: 'none',
                 cursor: isEditing ? 'text' : 'pointer',
                 whiteSpace: 'pre-wrap',
-                color: component.props.color || undefined,
+                color: component.props.color || '#000000',
                 ...component.props.style
             }}
             dir="ltr"
@@ -191,6 +191,7 @@ const HeadingRenderer = React.memo(({ component, isEditing, contentRef, handleCl
                         outline: 'none',
                         cursor: isEditing ? 'text' : 'pointer',
                         whiteSpace: 'pre-wrap',
+                        color: component.props.color || '#000000',
                         ...component.props.style
                     },
                     dangerouslySetInnerHTML: { __html: DOMPurify.sanitize(component.props.content || 'Your Heading') }

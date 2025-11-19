@@ -16,7 +16,7 @@ pnpm add resend-editor
 
 ```tsx
 import { EmailEditor, EmailTemplate } from 'resend-editor';
-import 'resend-editor/dist/index.css'; // If you have styles (currently styles are inline/tailwind)
+import 'resend-editor/styles.css'; // Import the styles
 
 function App() {
   const handleChange = (template: EmailTemplate) => {
@@ -46,3 +46,14 @@ function App() {
 2. Install dependencies: `npm install`
 3. Run dev server: `npm run dev`
 4. Build: `npm run build`
+
+### Development Example
+
+To see the editor in action while developing:
+
+```bash
+npm run dev:example
+```
+
+This will start a Vite development server at `http://localhost:5173` with hot-module-replacement enabled. You can make changes to the source code and see them reflected immediately in the browser.
+
