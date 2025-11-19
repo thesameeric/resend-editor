@@ -8,14 +8,17 @@ import { Textarea } from "./ui/textarea"
 import { Button } from "./ui/button"
 import { TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { CSSPropertyInput } from "./CSSPropertyInput"
+import { ImageUploader } from "./ImageUploader"
 
 interface PropertiesPanelProps {
     component: EmailComponent | null
     onUpdate: (id: string, updates: Partial<EmailComponent>) => void
     onDelete: (id: string) => void
+    onUpload?: (file: File) => Promise<string>
+    imageUploadUrl?: string
 }
 
-export function PropertiesPanel({ component, onUpdate, onDelete }: PropertiesPanelProps) {
+export function PropertiesPanel({ component, onUpdate, onDelete, onUpload, imageUploadUrl }: PropertiesPanelProps) {
     const [isCollapsed, setIsCollapsed] = React.useState(false)
 
     const updateProp = (key: string, value: any) => {
@@ -189,11 +192,19 @@ export function PropertiesPanel({ component, onUpdate, onDelete }: PropertiesPan
                     <>
                         <div>
                             <Label>Image URL</Label>
-                            <Input
-                                value={component.props.src || ''}
-                                onChange={(e) => updateProp('src', e.target.value)}
-                                placeholder="https://example.com/image.jpg"
-                            />
+                            <div className="space-y-2">
+                                <Input
+                                    value={component.props.src || ''}
+                                    onChange={(e) => updateProp('src', e.target.value)}
+                                    placeholder="https://example.com/image.jpg"
+                                />
+                                <ImageUploader
+                                    onUpload={onUpload}
+                                    imageUploadUrl={imageUploadUrl}
+                                    onUrlChange={(url) => updateProp('src', url)}
+                                    currentUrl={component.props.src}
+                                />
+                            </div>
                         </div>
                         <div>
                             <Label>Alt Text</Label>

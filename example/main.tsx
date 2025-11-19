@@ -30,6 +30,15 @@ function App() {
         console.log('Template updated:', newTemplate);
     }, []);
 
+    const handleUpload = async (file: File): Promise<string> => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const url = URL.createObjectURL(file);
+                resolve(url);
+            }, 2000);
+        });
+    };
+
     return (
         <div style={{ height: '100vh', width: '100vw', margin: 0, padding: 0 }}>
             <div style={{
@@ -65,6 +74,7 @@ function App() {
             <EmailEditor
                 initialTemplate={template}
                 onChange={handleChange}
+                onUpload={handleUpload}
             />
         </div>
     );

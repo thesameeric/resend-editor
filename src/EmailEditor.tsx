@@ -35,6 +35,8 @@ const MonacoEditor = ({ ...props }: React.ComponentProps<typeof Editor>) => {
 interface EmailEditorProps {
     initialTemplate?: EmailTemplate
     onChange?: (template: EmailTemplate) => void
+    onUpload?: (file: File) => Promise<string>
+    imageUploadUrl?: string
 }
 
 function createDefaultComponent(type: EmailComponentType): Omit<EmailComponent, 'id'> {
@@ -183,7 +185,7 @@ function createDefaultComponent(type: EmailComponentType): Omit<EmailComponent, 
     }
 }
 
-export function EmailEditor({ initialTemplate, onChange }: EmailEditorProps) {
+export function EmailEditor({ initialTemplate, onChange, onUpload, imageUploadUrl }: EmailEditorProps) {
     const [components, setComponents] = React.useState<EmailComponent[]>(
         initialTemplate?.components || []
     )
@@ -243,6 +245,23 @@ export function EmailEditor({ initialTemplate, onChange }: EmailEditorProps) {
             onChange({ components })
         }
     }, [components, onChange])
+
+    // Handle delete key
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+                // Don't delete if user is typing in an input/textarea
+                const target = e.target as HTMLElement
+                if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+                    return
+                }
+                handleDeleteComponent(selectedId)
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [selectedId])
 
     // Find selected component recursively
     const findComponentById = (comps: EmailComponent[], id: string): EmailComponent | null => {
@@ -625,6 +644,8 @@ export function EmailEditor({ initialTemplate, onChange }: EmailEditorProps) {
                     component={selectedComponent}
                     onUpdate={handleUpdateComponent}
                     onDelete={handleDeleteComponent}
+                    onUpload={onUpload}
+                    imageUploadUrl={imageUploadUrl}
                 />
             </div>
             <DragOverlay dropAnimation={{
