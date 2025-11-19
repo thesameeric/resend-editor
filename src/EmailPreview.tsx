@@ -15,7 +15,7 @@ interface EmailPreviewProps {
 }
 
 export function EmailPreview({ components, selectedId, onSelect, onUpdateContent, viewMode = 'desktop' }: EmailPreviewProps) {
-    const { setNodeRef } = useDroppable({
+    const { setNodeRef, isOver } = useDroppable({
         id: 'email-canvas',
     })
 
@@ -24,13 +24,21 @@ export function EmailPreview({ components, selectedId, onSelect, onUpdateContent
             <div
                 ref={setNodeRef}
                 className={`
-                    bg-white shadow-sm min-h-[800px] transition-all duration-300 text-black
+                    bg-white shadow-sm min-h-[800px] transition-all duration-300 text-black relative
                     ${viewMode === 'mobile' ? 'w-[375px] rounded-3xl border-8 border-neutral-800' : 'w-[600px]'}
+                    ${isOver ? 'ring-4 ring-blue-500/50' : ''}
                 `}
                 style={{
                     fontFamily: 'Arial, sans-serif',
                 }}
             >
+                {isOver && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10 z-20 pointer-events-none rounded-lg">
+                        <div className="bg-blue-500 text-white px-4 py-2 rounded-full text-base font-medium shadow-lg">
+                            Drop component here
+                        </div>
+                    </div>
+                )}
                 {components.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-muted-foreground p-8 border-2 border-dashed border-muted m-4 rounded-lg">
                         <p>Drag and drop components here</p>

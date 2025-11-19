@@ -6,15 +6,17 @@ import {
     DragEndEvent,
     DragOverlay,
     DragStartEvent,
-    closestCenter,
+    pointerWithin,
     PointerSensor,
     useSensor,
     useSensors,
 } from "@dnd-kit/core"
+import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers"
 import { arrayMove } from "@dnd-kit/sortable"
 import { ComponentPalette } from "./ComponentPalette"
 import { EmailPreview } from "./EmailPreview"
 import { PropertiesPanel } from "./PropertiesPanel"
+import { SortableEmailComponent, ComponentRenderer } from "./SortableEmailComponent"
 import { EmailComponent, EmailComponentType, EmailTemplate } from "./types"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 import { renderToReactEmail } from "./renderToReactEmail"
@@ -505,9 +507,10 @@ export function EmailEditor({ initialTemplate, onChange }: EmailEditorProps) {
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            modifiers={[]}
         >
             <div className="flex h-full">
                 <ComponentPalette />
@@ -624,10 +627,50 @@ export function EmailEditor({ initialTemplate, onChange }: EmailEditorProps) {
                     onDelete={handleDeleteComponent}
                 />
             </div>
-            <DragOverlay>
+            <DragOverlay dropAnimation={{
+                duration: 250,
+                easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+            }}>
                 {activeId ? (
-                    <div className="bg-white dark:bg-neutral-800 text-foreground p-2 rounded shadow-lg opacity-80">
-                        Dragging...
+                    <div className="opacity-80 rotate-2 cursor-grabbing pointer-events-none">
+                        {activeId.startsWith('palette-') ? (
+                            (() => {
+                                const type = activeId.replace('palette-', '') as EmailComponentType
+                                const tempComponent: EmailComponent = {
+                                    id: 'temp',
+                                    ...createDefaultComponent(type)
+                                }
+                                return (
+                                    <div className="bg-white shadow-xl rounded-lg border border-blue-500 overflow-hidden" style={{ width: '600px' }}>
+                                        <div className="p-4 pointer-events-none">
+                                            <ComponentRenderer
+                                                component={tempComponent}
+                                                onUpdateContent={() => { }}
+                                                onSelect={() => { }}
+                                                isSelected={false}
+                                            />
+                                        </div>
+                                    </div>
+                                )
+                            })()
+                        ) : (
+                            (() => {
+                                const comp = findComponentById(components, activeId)
+                                if (!comp) return null
+                                return (
+                                    <div className="bg-white shadow-xl rounded-lg border border-blue-500 overflow-hidden" style={{ width: '600px' }}>
+                                        <div className="p-4 pointer-events-none">
+                                            <ComponentRenderer
+                                                component={comp}
+                                                onUpdateContent={() => { }}
+                                                onSelect={() => { }}
+                                                isSelected={false}
+                                            />
+                                        </div>
+                                    </div>
+                                )
+                            })()
+                        )}
                     </div>
                 ) : null}
             </DragOverlay>

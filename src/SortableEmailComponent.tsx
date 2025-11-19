@@ -29,7 +29,7 @@ export function SortableEmailComponent({ component, isSelected, selectedId, onSe
 
     const style = {
         transform: CSS.Transform.toString(transform),
-        transition,
+        transition: transition || 'transform 250ms ease',
         opacity: isDragging ? 0.5 : 1,
     }
 
@@ -38,7 +38,7 @@ export function SortableEmailComponent({ component, isSelected, selectedId, onSe
             ref={setNodeRef}
             style={style}
             className={`
-                relative group
+                relative group pl-10
                 ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
             `}
             onClick={(e) => {
@@ -49,9 +49,10 @@ export function SortableEmailComponent({ component, isSelected, selectedId, onSe
             <div
                 {...attributes}
                 {...listeners}
-                className="absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing z-10"
+                className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing z-10 p-1 rounded hover:bg-muted/50 transition-all opacity-0 group-hover:opacity-100"
+                title="Drag to reorder"
             >
-                <GripVerticalIcon className="size-4 text-muted-foreground" />
+                <GripVerticalIcon className="size-4 text-muted-foreground hover:text-foreground" />
             </div>
             <ComponentRenderer
                 component={component}
@@ -74,7 +75,7 @@ interface GridColumnProps {
 }
 
 function GridColumn({ column, index, isSelected, selectedId, onSelect, onUpdateContent }: GridColumnProps) {
-    const { setNodeRef: setDroppableRef } = useDroppable({
+    const { setNodeRef: setDroppableRef, isOver } = useDroppable({
         id: `${column.id}-dropzone`,
         data: { parentId: column.id }
     })
@@ -83,7 +84,9 @@ function GridColumn({ column, index, isSelected, selectedId, onSelect, onUpdateC
         <div
             className={`border border-dashed rounded cursor-pointer transition-colors ${isSelected
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700/50 hover:border-neutral-400 dark:hover:border-neutral-500'
+                : isOver
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500 ring-offset-2'
+                    : 'border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-700/50 hover:border-neutral-400 dark:hover:border-neutral-500'
                 }`}
             style={{
                 flex: 1,
@@ -96,6 +99,13 @@ function GridColumn({ column, index, isSelected, selectedId, onSelect, onUpdateC
             }}
         >
             <div ref={setDroppableRef}>
+                {isOver && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10 z-20 pointer-events-none">
+                        <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                            Drop here
+                        </div>
+                    </div>
+                )}
                 {(!column.children || column.children.length === 0) ? (
                     <div className="flex items-center justify-center h-20 text-xs text-muted-foreground dark:text-neutral-400">
                         <PlusIcon className="size-3 mr-1" />
@@ -299,7 +309,7 @@ const SocialRenderer = React.memo(({ component }: RendererProps) => (
     </div>
 ))
 
-function ComponentRenderer({ component, onUpdateContent, onSelect, isSelected, selectedId }: ComponentRendererProps) {
+export function ComponentRenderer({ component, onUpdateContent, onSelect, isSelected, selectedId }: ComponentRendererProps) {
     const { type, props } = component
     const [isEditing, setIsEditing] = React.useState(false)
     const contentRef = React.useRef<HTMLElement>(null)
@@ -372,7 +382,7 @@ function ComponentRenderer({ component, onUpdateContent, onSelect, isSelected, s
 
     // Container type (can hold other components)
     if (['container', 'section', 'header', 'footer', 'hero', 'features'].includes(type)) {
-        const { setNodeRef: setDroppableRef } = useDroppable({
+        const { setNodeRef: setDroppableRef, isOver } = useDroppable({
             id: `${component.id}-dropzone`,
             data: { parentId: component.id }
         })
@@ -382,12 +392,21 @@ function ComponentRenderer({ component, onUpdateContent, onSelect, isSelected, s
                 ref={setDroppableRef}
                 style={{
                     margin: 0,
-                    border: isSelected ? '2px dashed #3b82f6' : '2px dashed transparent',
+                    border: isSelected ? '2px dashed #3b82f6' : isOver ? '2px dashed #3b82f6' : '2px dashed transparent',
+                    backgroundColor: isOver ? 'rgba(59, 130, 246, 0.05)' : undefined,
                     minHeight: '50px',
                     padding: '10px',
+                    position: 'relative',
                     ...props.style,
                 }}
             >
+                {isOver && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10 z-20 pointer-events-none rounded">
+                        <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                            Drop here
+                        </div>
+                    </div>
+                )}
                 {(!component.children || component.children.length === 0) ? (
                     <div className="flex items-center justify-center h-20 text-xs text-muted-foreground dark:text-neutral-400 border border-dashed border-neutral-300 dark:border-neutral-700 rounded">
                         <PlusIcon className="size-3 mr-1" />
