@@ -151,7 +151,7 @@ export function ImageUploader({ onUpload, imageUploadUrl, onUrlChange, currentUr
             </div>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-auto">
                     <DialogHeader>
                         <DialogTitle>Crop Image</DialogTitle>
                     </DialogHeader>
