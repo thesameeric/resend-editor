@@ -25,10 +25,47 @@ function App() {
 
   return (
     <div style={{ height: '100vh' }}>
-      <EmailEditor onChange={handleChange} />
+      <EmailEditor 
+        onChange={handleChange}
+        // Option 1: Provide a URL to upload images to
+        imageUploadUrl="/api/upload"
+        // Option 2: Provide a custom upload function
+        // onUpload={async (file) => {
+        //   const url = await uploadFile(file);
+        //   return url;
+        // }}
+      />
     </div>
   );
 }
+```
+
+## Image Upload
+
+You can enable image uploads by providing either `imageUploadUrl` or `onUpload`.
+
+### `imageUploadUrl` (string)
+
+A URL to POST the image file to. The editor will send a `POST` request with the file in a `FormData` object under the key `file`.
+
+The endpoint should return either:
+- A JSON object with a `url`, `secure_url`, or `data.url` property.
+- A plain text response containing the URL.
+
+### `onUpload` (function)
+
+A function that receives a `File` object and returns a Promise that resolves to the image URL string.
+
+```tsx
+<EmailEditor
+  onUpload={async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    return data.url;
+  }}
+/>
 ```
 
 ## Features
